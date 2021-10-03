@@ -70,6 +70,7 @@ class HTTPClient(object):
     def GET(self, url, args=None):
         code = 500
         body = ""
+
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
@@ -86,6 +87,7 @@ class HTTPClient(object):
 if __name__ == "__main__":
     client = HTTPClient()
     command = "GET"
+    #print(len(sys.argv)) # 1 for non-args
     if (len(sys.argv) <= 1):
         help()
         sys.exit(1)
