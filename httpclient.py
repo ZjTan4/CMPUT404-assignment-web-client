@@ -44,10 +44,18 @@ class HTTPClient(object):
         return None
 
     def get_headers(self,data):
-        return None
+        try:
+            header, body = str.split(data, '\r\n\r\n')
+        except:
+            print("get_body fails")
+        return header
 
     def get_body(self, data):
-        return None
+        try:
+            header, body = str.split(data, '\r\n\r\n')
+        except:
+            print("get_body fails")
+        return body
     
     def sendall(self, data):
         self.socket.sendall(data.encode('utf-8'))
@@ -88,10 +96,11 @@ if __name__ == "__main__":
     client = HTTPClient()
     command = "GET"
     #print(len(sys.argv)) # 1 for non-args
+
     if (len(sys.argv) <= 1):
         help()
         sys.exit(1)
-    elif (len(sys.argv) == 3):
+    elif (len(sys.argv) == 3): # (url, command)
         print(client.command( sys.argv[2], sys.argv[1] ))
     else:
         print(client.command( sys.argv[1] ))
