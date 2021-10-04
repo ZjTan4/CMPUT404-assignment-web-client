@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # coding: utf-8
-# Copyright 2016 Abram Hindle, https://github.com/tywtyw2002, and https://github.com/treedust
+# Copyright 2016 Abram Hindle, https://github.com/tywtyw2002, and https://github.com/treedust, 2021 Zijie Tan
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -90,11 +90,9 @@ class HTTPClient(object):
             host_port = uri_list[0]
 
             # compute the path and query
-            path_buffer = ""
             path = ""
             query = ""
-            for layer in uri_list[1:]:
-                path_buffer += ("/" + layer)
+            path_buffer = "/" + "/".join(uri_list[1:])
             if (path_buffer.find("?") != -1):
                 path, query = str.split(path_buffer, "?")
             else:
@@ -117,13 +115,13 @@ class HTTPClient(object):
     def GET(self, url, args=None):
         code = 500
         body = ""
-        request = "GET {} HTTP/1.1\r\n"
+        get = "GET {} HTTP/1.1\r\n"
         host, port, path, query = self.parse_url(url)
         try:
             self.connect(host, port)
-            request = request.format(path)
-            request += ("Host: {}\r\n\r\n".format(host))
-            self.sendall(request)
+            get = get.format(path)
+            get += ("Host: {}\r\n\r\n".format(host))
+            self.sendall(get)
             buffer = self.recvall()
             code = self.get_code(buffer)
             body = self.get_body(buffer)
@@ -142,7 +140,9 @@ class HTTPClient(object):
         host, port, path, query = self.parse_url(url)
         try:
             self.connect(host, port)
-            
+            post = post.format(path)
+            post += ("Host: {}\r\n".format(host))
+            post += "Content-Type: application/x-www-form-urlencoded"
             self.close()
         except Exception as e:
             print("Post fails due to {}".format(e))
@@ -160,7 +160,7 @@ if __name__ == "__main__":
     client = HTTPClient()
     command = "GET"
     #print(len(sys.argv)) # 1 for non-args
-
+    
     if (len(sys.argv) <= 1):
         help()
         sys.exit(1)
