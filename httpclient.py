@@ -130,14 +130,24 @@ class HTTPClient(object):
 
             self.close()
         except Exception as e:
-            print("Connection fail because {}".format(e))
+            print("Get fail due to {}".format(e))
             sys.exit(1)
         
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
         code = 500
-        body = "POST "
+        body = ""
+        post = "POST {} HTTP/1.1\r\n"
+        host, port, path, query = self.parse_url(url)
+        try:
+            self.connect(host, port)
+            
+            self.close()
+        except Exception as e:
+            print("Post fails due to {}".format(e))
+            sys.exit(1)
+        
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
