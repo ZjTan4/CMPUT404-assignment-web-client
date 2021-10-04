@@ -41,7 +41,13 @@ class HTTPClient(object):
         return None
 
     def get_code(self, data):
-        return None
+        header = self.get_headers(data)
+        header_list = str.split(header, " ") # HTTP/1.1 200 OK\r\n
+        try:
+            code = int(header_list[1])
+        except:
+            print("get_code fail")
+        return code
 
     def get_headers(self,data):
         try:
@@ -75,6 +81,7 @@ class HTTPClient(object):
                 done = not part
         return buffer.decode('utf-8')
 
+    # example URL: 
     def GET(self, url, args=None):
         code = 500
         body = ""
