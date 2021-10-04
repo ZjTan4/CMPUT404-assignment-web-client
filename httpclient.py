@@ -70,7 +70,9 @@ class HTTPClient(object):
         self.socket.close()
 
     # read everything from the socket
-    def recvall(self, sock):
+    def recvall(self, sock=None):
+        if (not sock):
+            sock = self.socket
         buffer = bytearray()
         done = False
         while not done:
@@ -114,8 +116,22 @@ class HTTPClient(object):
     # format: http://<host>:<port>/<path>
     def GET(self, url, args=None):
         code = 500
-        body = "GET "
-        hos, port, path, query = self.parse_url(url)
+        body = ""
+        request = "GET {} HTTP/1.1\r\n"
+        host, port, path, query = self.parse_url(url)
+        try:
+            self.connect(host, port)
+            request = request.format(path)
+            request += ("Host: {}\r\n\r\n".format(host))
+            self.sendall(request)
+            buffer = self.recvall()
+            code = self.get_code(buffer)
+            body = self.get_body(buffer)
+
+            self.close()
+        except Exception as e:
+            print("Connection fail because {}".format(e))
+            sys.exit(1)
         
         return HTTPResponse(code, body)
 
