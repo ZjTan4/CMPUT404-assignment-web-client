@@ -81,16 +81,47 @@ class HTTPClient(object):
                 done = not part
         return buffer.decode('utf-8')
 
-    # example URL: 
+    def parse_url(self, url):
+        try:
+            protocol, uri = str.split(url, "://")
+            uri_list = str.split(uri, "/")
+            host_port = uri_list[0]
+
+            # compute the path and query
+            path_buffer = ""
+            path = ""
+            query = ""
+            for layer in uri_list[1:]:
+                path_buffer += ("/" + layer)
+            if (path_buffer.find("?") != -1):
+                path, query = str.split(path_buffer, "?")
+            else:
+                path = path_buffer
+
+            # compute the host and port
+            host = ""
+            port = 80
+            if (host_port.find(':') != -1):
+                host, port = str.split(host_port, ":")
+                port = int(port)
+            else:
+                host = host_port
+        except Exception as e:
+            print("get_path fails for {}".format(e))
+        return host, port, path, query
+
+    # example URL: http://127.0.0.1:27600/49872398432
+    # format: http://<host>:<port>/<path>
     def GET(self, url, args=None):
         code = 500
-        body = ""
-
+        body = "GET "
+        hos, port, path, query = self.parse_url(url)
+        
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
         code = 500
-        body = ""
+        body = "POST "
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
