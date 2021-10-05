@@ -110,7 +110,7 @@ class HTTPClient(object):
     def GET(self, url, args=None):
         code = 500
         body = ""
-        get = "GET {} HTTP/1.1\r\n"
+        get = "GET {} HTTP/1.1\r\nConnection: close\r\n"
         host, port, path = self.parse_url(url)
         try:
             self.connect(host, port)
@@ -125,13 +125,14 @@ class HTTPClient(object):
         except Exception as e:
             print("Get fail due to {}".format(e))
             sys.exit(1)
-        print(host, code)
+        # print the result to std
+        print("code: {}\nresponse: {}\n".format(code, body))
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
         code = 500
         body = ""
-        post = "POST {} HTTP/1.1\r\n"
+        post = "POST {} HTTP/1.1\r\nConnection: close\r\n"
         host, port, path = self.parse_url(url)
         try:
             self.connect(host, port)
@@ -160,8 +161,9 @@ class HTTPClient(object):
             self.close()
         except Exception as e:
             print("Post fails due to {}".format(e))
-            sys.exit(1)
-        print(host, code)
+            sys.exit(1)        
+        # print the result to std
+        print("code: {}\nresponse: {}\n".format(code, body))
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
