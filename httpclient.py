@@ -125,7 +125,7 @@ class HTTPClient(object):
         except Exception as e:
             print("Get fail due to {}".format(e))
             sys.exit(1)
-        
+        print(host, code)
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
@@ -139,9 +139,10 @@ class HTTPClient(object):
             post += ("Host: {}\r\n".format(host))
             post += "Content-Type: application/x-www-form-urlencoded\r\n"
             if args:
-                post_body = ""
-                for key, value in enumerate(args):
-                    post_body += "{}: {}\r\n".format(key, value)
+                query_list = []
+                for key in args:
+                    query_list.append("{}={}".format(key, args[key]))
+                post_body = "&".join(query_list)
                 body_bytes = post_body.encode("utf-8")
                 post += "Content-Length: {}\r\n".format(len(body_bytes))
                 post += "\r\n"
@@ -158,7 +159,7 @@ class HTTPClient(object):
         except Exception as e:
             print("Post fails due to {}".format(e))
             sys.exit(1)
-        
+        print(host, code)
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
