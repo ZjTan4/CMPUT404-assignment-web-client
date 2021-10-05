@@ -76,6 +76,7 @@ class HTTPClient(object):
         buffer = bytearray()
         done = False
         while not done:
+            #print("post")
             part = sock.recv(1024)
             if (part):
                 buffer.extend(part)
@@ -89,14 +90,8 @@ class HTTPClient(object):
             uri_list = str.split(uri, "/")
             host_port = uri_list[0]
 
-            # compute the path and query
-            path = ""
-            query = ""
-            path_buffer = "/" + "/".join(uri_list[1:])
-            if (path_buffer.find("?") != -1):
-                path, query = str.split(path_buffer, "?")
-            else:
-                path = path_buffer
+            # compute the path
+            path = "/" + "/".join(uri_list[1:])
 
             # compute the host and port
             host = ""
@@ -108,7 +103,7 @@ class HTTPClient(object):
                 host = host_port
         except Exception as e:
             print("get_path fails for {}".format(e))
-        return host, port, path, query
+        return host, port, path
 
     # example URL: http://127.0.0.1:27600/49872398432
     # format: http://<host>:<port>/<path>
@@ -116,7 +111,7 @@ class HTTPClient(object):
         code = 500
         body = ""
         get = "GET {} HTTP/1.1\r\n"
-        host, port, path, query = self.parse_url(url)
+        host, port, path = self.parse_url(url)
         try:
             self.connect(host, port)
             get = get.format(path)
@@ -137,12 +132,17 @@ class HTTPClient(object):
         code = 500
         body = ""
         post = "POST {} HTTP/1.1\r\n"
-        host, port, path, query = self.parse_url(url)
+        host, port, path = self.parse_url(url)
         try:
             self.connect(host, port)
             post = post.format(path)
             post += ("Host: {}\r\n".format(host))
-            post += "Content-Type: application/x-www-form-urlencoded"
+            post += "Content-Type: application/x-www-form-urlencoded\r\n\r\n"
+            
+            self.sendall(post)
+            buffer = self.recvall()
+            code = self.get_code(buffer)
+            body = self.get_body(buffer)
             self.close()
         except Exception as e:
             print("Post fails due to {}".format(e))
