@@ -137,8 +137,19 @@ class HTTPClient(object):
             self.connect(host, port)
             post = post.format(path)
             post += ("Host: {}\r\n".format(host))
-            post += "Content-Type: application/x-www-form-urlencoded\r\n\r\n"
-            
+            post += "Content-Type: application/x-www-form-urlencoded\r\n"
+            if args:
+                post_body = ""
+                for key, value in enumerate(args):
+                    post_body += "{}: {}\r\n".format(key, value)
+                body_bytes = post_body.encode("utf-8")
+                post += "Content-Length: {}\r\n".format(len(body_bytes))
+                post += "\r\n"
+                post += post_body
+            else:
+                post += "Content-Length: 0\r\n"
+                post += "\r\n"
+
             self.sendall(post)
             buffer = self.recvall()
             code = self.get_code(buffer)
